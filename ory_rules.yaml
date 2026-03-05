@@ -1,0 +1,3291 @@
+apiVersion: v1
+data:
+  access-rules.yaml: |+
+    - id: "ory:kratos:public"
+      upstream:
+        preserve_host: true
+        url: "http://kratos-public:4433"
+        strip_path: /.ory/kratos/public
+      match:
+        url: "http://dev.7seers.ai/.ory/kratos/public/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+    - id: "ory:keto:public"
+      upstream:
+        preserve_host: true
+        url: "http://keto-api:4456"
+        strip_path: /.ory/keto/public
+      match:
+        url: "http://dev.7seers.ai/.ory/keto/public/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+    - id: "ory:keto:private"
+      upstream:
+        preserve_host: true
+        url: "http://keto-api:4457"
+        strip_path: /.ory/keto/private
+      match:
+        url: "http://dev.7seers.ai/.ory/keto/private/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+    - id: "ory:content-management:media:public"
+      upstream:
+        preserve_host: true
+        url: "http://content-management-seven-seers:8000"
+      match:
+        url: "http://dev.7seers.ai/data/v1/media/<{app_info}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/panel/login
+            
+    - id: "ory:jupyter-test"
+      upstream:
+        preserve_host: true
+        url: "http://192.168.3.65:30080"
+      match:
+        url: "http://dev.7seers.ai/<{hub,user}>/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:video streaming"
+      upstream:
+        preserve_host: true
+        url: "http://192.168.3.65:31571"
+      match:
+        url: "http://dev.7seers.ai/streaming<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+        
+    - id: "ory:talk-to-avatar"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-talk-to-avatar-obsidian-dev-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/talk-to-avatar<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:searxng"
+      upstream:
+        preserve_host: true
+        url: "http://searxng:8080"
+        strip_path: /searxng
+      match:
+        url: "http://dev.7seers.ai/searxng/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:scoremate"
+      upstream:
+        preserve_host: true
+        url: "http://192.168.3.83:8501"
+      match:
+        url: "http://dev.7seers.ai/scoremate<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:skillscope"
+      upstream:
+        preserve_host: true
+        url: "http://192.168.3.83:8502"
+      match:
+        url: "http://dev.7seers.ai/skillscope<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "skill-bridge:tpo"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001"
+      match:
+        url: "http://dev.7seers.ai/api/v1/<{job,export,org,learning_path}><**>"
+        methods:
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "tpo-api",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+                      
+            
+    - id: "attendance-system"
+      upstream:
+        preserve_host: true
+        url: "http://attendance-seven-seers:8000"
+      match:
+        url: "http://dev.7seers.ai/attendance<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "student-api",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+          
+            
+    - id: "skill-bridge:student"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001"
+      match:
+        url: "http://dev.7seers.ai/api/v1/<{utils,skill,student,resume,interview,assessment,flashcards,podcast,company}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "student-api",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "skill-bridge:public"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001"
+      match:
+        url: "http://dev.7seers.ai/api/v1/<{public}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "fixed-static-files"
+      upstream:
+        preserve_host: true
+        url: "http://static:80"
+        strip_path: /fixed
+      match:
+        url: "http://dev.7seers.ai/fixed/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+            
+            
+    - id: "skill-bridge:student-tpo-get"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001"
+      match:
+        url: "http://dev.7seers.ai/api/v1/<{job,analytics,learning_path}><**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "student-api",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+            
+    - id: "skill-bridge:openapi-docs"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001"
+      match:
+        url: "http://dev.7seers.ai/api/v1/<{redoc,docs,openapi.json,ping}><**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "tpo-api",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:publisher-backend"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-publisher-backend-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/assessment/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "mock-interview:Backend"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-mockinterview-backend-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/<{interview,livekit,gemini,pipecat,aws-nova,unified-interview}>/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "mock-interview:frontend"
+      upstream:
+        preserve_host: true
+        url: "http://mockinterview-frontend-clusterip:80"
+        strip_path: mock-interview
+      match:
+        url: "http://dev.7seers.ai/mock-interview<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+
+
+    - id: "ory:sevenseer-remotefe-student-new-static"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remotefe-student-new-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/<{fe-student/assets/**}>"
+        methods:
+          - GET
+          - OPTIONS
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+
+    - id: "ory:sevenseer-remotefe-student-new"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remotefe-student-new-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/<{fe-student/,fe-student,fe-student/dashboard,fe-student/jobs,fe-student/jobs/**,fe-student/internships,fe-student/internships/**,fe-student/resumes,fe-student/resumes/**,fe-student/skills,fe-student/skills/**,fe-student/analytics,fe-student/analytics/**,fe-student/mock-interview,fe-student/mock-interview/**,fe-student/unauthorized,fe-student/profile}>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:sevenseer-remotefe-student-new-v1-assets"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remotefe-student-new-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/v1/assets/<**>"
+        methods:
+          - GET
+          - OPTIONS
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+
+    - id: "ory:sevenseer-remotefe-student-new-student-fe"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remotefe-student-new-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/student-fe/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+
+
+    - id: "ory:admin-api-user-management"
+      upstream:
+        preserve_host: true
+        url: "http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000"
+      match:
+        url: "http://dev.7seers.ai/admin/<{v1,v2}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:scraping-requests-api-user-management"
+      upstream:
+        preserve_host: true
+        url: "http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000"
+      match:
+        url: "http://dev.7seers.ai/<{scraping,github,feed-data,help-centre,migration}>/<{v1,v2}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:superadmin-api-user-management"
+      upstream:
+        preserve_host: true
+        url: "http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000"
+      match:
+        url: "http://dev.7seers.ai/superadmin/<{v1,v2}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+    - id: "ory:interviewmodes-api-user-management"
+      upstream:
+        preserve_host: true
+        url: "http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000"
+      match:
+        url: "http://dev.7seers.ai/interview-modes/<{v1,v2}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "sevenseers-vaporware-realtime"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseers-vaporware-realtime:3000"
+      match:
+        url: "http://dev.7seers.ai/vapourware<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:mfe-presentation"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remote-fe-presentation-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{ppt_mfe}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:mfe-presentation-new"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-presentation-mfe-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{new_ppt_mfe}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:mfe-admin"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remotefe-admin-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{admin_mfe}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:mfe-superadmin"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-superadmin-frontend-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{superadmin_mfe}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+            
+    - id: "ory:doceditor-remotemfe"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remotefe-doc-editor-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/doc_editor<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login          
+            
+    - id: "ory:mfe-student"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-remotefe-student-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{learner_mfe}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "sevenseers-vaporware-realtime:api"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseers-vaporware-realtime:3000"
+      match:
+        url: "http://dev.7seers.ai/api/session<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+                
+    - id: "ory:ppt-to-pdf"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseers-presentationexporter-clusterip:8001"
+      match:
+        url: "http://dev.7seers.ai/ppt_export/v1<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:resume-exporter"
+
+      upstream:
+
+        preserve_host: true
+
+        url: "http://sevenseer-resumeexporter-clusterip.obsidian-dev.svc.cluster.local:8001"
+
+      match:
+
+        url: "http://dev.7seers.ai/export/v1/<**>"
+
+        methods:
+
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+            
+    - id: "ory:media-service"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-media-service-clusterip:4766"
+      match:
+        url: "http://dev.7seers.ai/media/v1/<**>"
+        methods:
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:dummymedia-service"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-media-service-clusterip.obsidian-stage.svc.cluster.local:4766"
+      match:
+        url: "http://dev.7seers.ai/dummymedia/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:media-service:public"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-media-service-clusterip:4766"
+      match:
+        url: "http://dev.7seers.ai/media/v1/<**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:get-cookie:public"
+      upstream:
+        preserve_host: true
+        url: "http://web-ingestor-seven-seers.obsidian-dev.svc.cluster.local:4766"
+      match:
+        url: "http://dev.7seers.ai/scrapehub/v1/<{get_cookie}><**>"
+        methods:
+          - GET
+          - POST
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+        
+    - id: "ory:rag-service"
+      upstream:
+        preserve_host: true
+        url: "http://rag-seven-seers.obsidian-dev.svc.cluster.local:4766"
+      match:
+        url: "http://dev.7seers.ai/rag/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+            
+    - id: "ory:byte-sized-content"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-bytesizedcontent-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/bsc/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+            
+               
+    - id: "ory:vaporware-service"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-vaporware.obsidian-dev.svc.cluster.local:8000"
+      match:
+        url: "http://dev.7seers.ai/vpr/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+               
+    - id: "ory:doc-ingestor"
+      upstream:
+        preserve_host: true
+        url: "http://doc-ingestor-seven-seers.obsidian-dev.svc.cluster.local:4766"
+      match:
+        url: "http://dev.7seers.ai/doc/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+            
+    - id: "ory:marker"
+      upstream:
+        preserve_host: true
+        url: "http://marker-seven-seers:4766"
+      match:
+        url: "http://dev.7seers.ai/marker/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:marker-gpu"
+      upstream:
+        preserve_host: true
+        url: "http://192.168.3.83:4766"
+      match:
+        url: "http://dev.7seers.ai/marker_gpu/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+                       
+    - id: "ory:web-ingestor-service"
+      upstream:
+        preserve_host: true
+        url: "http://web-ingestor-seven-seers.obsidian-dev.svc.cluster.local:4766"
+      match:
+        url: "http://dev.7seers.ai/scrapehub/v1/<{outline-submission,outline-generation,scrape_images,scrape_web,health_check,ping,request_scrape_jobs,docs,redoc,openapi.json}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+
+            
+
+            
+            
+                        
+    - id: "ory:ai-tools-service"
+      upstream:
+        preserve_host: true
+        url: "http://tools-seven-seers:4766"
+      match:
+        url: "http://dev.7seers.ai/ai-tools/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+            
+            
+    - id: "ory:genai-v2"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-presentation-v2-clusterip:4766"
+      match:
+        url: "http://dev.7seers.ai/genai/v2/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:genai"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-presentation-clusterip:4766"
+      match:
+        url: "http://dev.7seers.ai/genai/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:frontend-1"
+      upstream:
+        preserve_host: true
+        url: "http://frontend-seven-seers-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+            
+    - id: "ory:superadmin-mfe"
+      upstream:
+        preserve_host: true
+        url: "http://frontend-seven-seers-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{superadmin}><{/}><{dashboard,usage-analytics,organization-management,requests,courses-analytics,user-management,quick-actions,access-management,user-profile,metering,external-jobs,notifications,query-management,mock-interview-modes}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:admin-mfe"
+      upstream:
+        preserve_host: true
+        url: "http://frontend-seven-seers-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{admin}><{/}><{dashboard,teacher,student,subject,section}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+            
+    - id: "ory:frontend-vaporware"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-vaporware-frontend-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{vaporware}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+          
+
+    - id: "ory:kratos-admin-ui-node:public"
+      upstream:
+        preserve_host: true
+        url: "http://frontend-seven-seers-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/<{static,home,favicon.ico,assets}><**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:frontend"
+      upstream:
+        preserve_host: true
+        url: "http://frontend-seven-seers-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai<{/}><{gitex,tpo,course,student,wasm,create-new,create-quiz,quiz,iframe,graph,skeleton,composer,app,tinymce,create,my-quiz,media-library,tools,abctest,account,presentation,dashboard}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+
+    - id: "ory:kratos:admin"
+      upstream:
+        preserve_host: true
+        url: "http://kratos-admin:4434"
+        strip_path: /.ory/kratos/private
+      match:
+        url: "http://dev.7seers.ai/.ory/kratos/private/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+        
+        
+    - id: "ory:upolad-api:exposed"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v2/<{upload}><**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+    - id: "library: analytics"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+       
+      match:
+        url: "http://dev.7seers.ai/lib/v1/analytics<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+
+    - id: "loghandler"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-log-handler-obsidian-dev-clusterip:8082"
+      match:
+        url: "http://dev.7seers.ai/log/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+
+            
+            
+          
+    - id: "ory:kratos-admin-ui-node2:protected"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/<{ppt,upload,quiz,tools,coupon}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+            
+            
+    - id: "ory:content-management"
+      upstream:
+        preserve_host: true
+        url: "http://content-management-seven-seers:8000"
+      match:
+        url: "http://dev.7seers.ai/data/v1/<{course,org,utils,health_check,openapi.json,redoc,docs,analytics,learning_path,master_learning_path,subject,section,student,group}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:content-management:media"
+      upstream:
+        preserve_host: true
+        url: "http://content-management-seven-seers:8000"
+      match:
+        url: "http://dev.7seers.ai/data/v1/media/<{download,upload,bucket,copy_objects,list,remove_objects}><**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:content-managemnt:public"
+      upstream:
+        preserve_host: true
+        url: "http://content-management-seven-seers:8000"
+      match:
+        url: "http://dev.7seers.ai/data/v1/<{url}><**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: noop
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:ppt-to-pdf:protected"
+      upstream:
+        preserve_host: true
+        url: "http://presentationtopdf-obsidian-dev-clusterip:8080"
+      match:
+        url: "http://dev.7seers.ai/pdf<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:3d-model:protected"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-threed-backend-service-obsidian-dev-clusterip:5000"
+      match:
+        url: "http://dev.7seers.ai/modelapi/v1/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:kratos-auth-api:protected"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/auth<**>"
+        methods:
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "auth-api-protected",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+      
+     
+    - id: "ory:kratos-auth-api:public"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/auth/<**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+     
+
+    - id: "ory:kratos-media-api-admin-1:protected"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/media/"
+        methods:
+          - POST
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "media-api-admin-protected",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+    - id: "ory:kratos-media-api-admin-2:protected"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/media/<[0-9]*>"
+        methods:
+          - DELETE
+          - PUT
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "media-api-admin-protected",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+            
+    - id: "ory:kratos-media-api:public"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/media/suggestion"
+        methods:
+          - POST
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+          
+    - id: "ory:kratos-media-api-2:public"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/media/<**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+    - id: "ory:kratos-media-api-3:public"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-library-server-clusterip:8000"
+      match:
+        url: "http://dev.7seers.ai/lib/v1/media/fetch"
+        methods:
+          - POST
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+            
+
+    - id: "ory:kratos-admin-ui-node4:protected"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-presentation-api-clusterip:4766"
+      match:
+        url: "http://dev.7seers.ai/psapi/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+
+
+
+    - id: "ory:kratos-selfservice-ui-node:anonymous"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-ory-frontend-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/panel/<{assets,**.js,**.css,**.png,**.svg,7seersfavicon.ico}><**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: anonymous
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+    - id: "ory:kratos-selfservice-ui-node:anonymous-1"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-ory-frontend-obsidian-dev-clusterip:80"
+      match:
+        url: "http://dev.7seers.ai/<{login,verification,recovery,registration,signup,complete-profile,settings,terms,privacy,verification,7seersfavicon.ico}><**>"
+        methods:
+          - GET
+      authenticators:
+        - handler: anonymous
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+        
+    - id: "ory:notification:admin"
+      upstream:
+        preserve_host: true
+        url: "http://obsidian-notification-service-obsidian-dev-clusterip.obsidian-dev.svc.cluster.local:9500"
+      match:
+        url: "http://dev.7seers.ai/notification/<**>"
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+      authenticators:
+        - handler: cookie_session
+        - handler: bearer_token
+      authorizer:
+        handler: remote_json
+        config:
+          remote: http://keto-api:4456/relation-tuples/check
+          payload: |
+            {
+              "namespace": "access",
+              "object": "administration",
+              "relation": "access",
+              "subject_id": "{{print .Extra.identity.traits.role }}"
+            }
+      mutators:
+        - handler: id_token
+      errors:
+        - handler: redirect
+          config:
+            to: http://dev.7seers.ai/login
+        
+        
+    - id: "ory:kratos-selfservice-ui-node:protected"
+      upstream:
+        preserve_host: true
+        url: "http://sevenseer-ory-frontend-obsidian-dev-clusterip:80"
+        strip_path: /panel
+      match:
+        url: "http://dev.7seers.ai/panel/<{debug,settings}>"
+        methods:
+          - GET
+      authenticators:
+        - handler: anonymous
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: json
+        
+        
+    - id: "ory:kratos-selfservice-ui-node:protected-test"
+      upstream:
+        preserve_host: true
+        url: "http://selfservice:4455"
+        strip_path: /panel/welcome
+      match:
+        url: "http://dev.7seers.ai/panel/<{welcome}>"
+        methods:
+          - GET
+      authenticators:
+        - handler: anonymous
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: json
+     
+    - id: "ory:public-api-user-management"
+      upstream:
+        preserve_host: true
+        url: "http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000"
+      match:
+        url: "http://dev.7seers.ai/admin/public/<{v1,v2}><**>"
+        methods:
+          - GET
+          - POST
+      authenticators:
+        - handler: anonymous
+      authorizer:
+        handler: allow
+      mutators:
+        - handler: noop
+      errors:
+        - handler: json
+
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"v1","data":{"access-rules.yaml":"- id:
+      \"ory:kratos:public\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://kratos-public:4433\"\n    strip_path: /.ory/kratos/public\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/.ory/kratos/public/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: noop\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: noop\n    \n- id:
+      \"ory:keto:public\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://keto-api:4456\"\n    strip_path: /.ory/keto/public\n  match:\n   
+      url: \"http://dev.7seers.ai/.ory/keto/public/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: noop\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: noop\n    \n- id:
+      \"ory:keto:private\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://keto-api:4457\"\n    strip_path: /.ory/keto/private\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/.ory/keto/private/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: noop\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: noop\n    \n- id:
+      \"ory:content-management:media:public\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://content-management-seven-seers:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/data/v1/media/\u003c{app_info}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: noop\n  authorizer:\n    handler: allow\n 
+      mutators:\n    - handler: noop\n  errors:\n    - handler: redirect\n     
+      config:\n        to: http://dev.7seers.ai/panel/login\n        \n- id:
+      \"ory:jupyter-test\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://192.168.3.65:30080\"\n  match:\n    url:
+      \"http://dev.7seers.ai/\u003c{hub,user}\u003e/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:video streaming\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://192.168.3.65:31571\"\n  match:\n    url:
+      \"http://dev.7seers.ai/streaming\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n    \n-
+      id: \"ory:talk-to-avatar\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://obsidian-talk-to-avatar-obsidian-dev-clusterip:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/talk-to-avatar\u003c**\u003e\"\n    methods:\n     
+      - GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:searxng\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://searxng:8080\"\n    strip_path: /searxng\n  match:\n    url:
+      \"http://dev.7seers.ai/searxng/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:scoremate\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://192.168.3.83:8501\"\n  match:\n    url:
+      \"http://dev.7seers.ai/scoremate\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:skillscope\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://192.168.3.83:8502\"\n  match:\n    url:
+      \"http://dev.7seers.ai/skillscope\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"skill-bridge:tpo\"\n  upstream:\n    preserve_host: true\n   
+      url:
+      \"http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/api/v1/\u003c{job,export,org,learning_path}\u003e\u003c**\u003e\"\n   
+      methods:\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"tpo-api\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n                  \n        \n- id: \"attendance-system\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://attendance-seven-seers:8000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/attendance\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"student-api\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n     
+      \n        \n- id: \"skill-bridge:student\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/api/v1/\u003c{utils,skill,student,resume,interview,assessment,flashcards,podcast,company}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"student-api\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"skill-bridge:public\"\n  upstream:\n    preserve_host: true\n   
+      url:
+      \"http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/api/v1/\u003c{public}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: noop\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: noop\n    - handler: id_token\n 
+      errors:\n    - handler: redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n        \n- id: \"fixed-static-files\"\n 
+      upstream:\n    preserve_host: true\n    url: \"http://static:80\"\n   
+      strip_path: /fixed\n  match:\n    url:
+      \"http://dev.7seers.ai/fixed/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: noop\n  authorizer:\n    handler: allow\n 
+      mutators:\n    - handler: noop\n        \n        \n- id:
+      \"skill-bridge:student-tpo-get\"\n  upstream:\n    preserve_host:
+      true\n    url:
+      \"http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/api/v1/\u003c{job,analytics,learning_path}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler:
+      cookie_session\n    - handler: bearer_token\n  authorizer:\n    handler:
+      remote_json\n    config:\n      remote:
+      http://keto-api:4456/relation-tuples/check\n      payload: |\n       
+      {\n          \"namespace\": \"access\",\n          \"object\":
+      \"student-api\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n        \n- id: \"skill-bridge:openapi-docs\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-skillbridge-service-obsidian-dev-clusterip:8001\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/api/v1/\u003c{redoc,docs,openapi.json,ping}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler:
+      cookie_session\n    - handler: bearer_token\n  authorizer:\n    handler:
+      remote_json\n    config:\n      remote:
+      http://keto-api:4456/relation-tuples/check\n      payload: |\n       
+      {\n          \"namespace\": \"access\",\n          \"object\":
+      \"tpo-api\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:publisher-backend\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://sevenseer-publisher-backend-obsidian-dev-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/assessment/v1/\u003c**\u003e\"\n    methods:\n     
+      - GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"mock-interview:Backend\"\n  upstream:\n    preserve_host:
+      true\n    url:
+      \"http://sevenseer-mockinterview-backend-clusterip:8000\"\n  match:\n   
+      url:
+      \"http://dev.7seers.ai/\u003c{interview,livekit,gemini,pipecat,aws-nova,unified-interview}\u003e/v1/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"mock-interview:frontend\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://mockinterview-frontend-clusterip:80\"\n   
+      strip_path: mock-interview\n  match:\n    url:
+      \"http://dev.7seers.ai/mock-interview\u003c**\u003e\"\n    methods:\n     
+      - GET\n      - POST\n      - PUT\n      - DELETE\n  authenticators:\n    -
+      handler: cookie_session\n    - handler: bearer_token\n  authorizer:\n   
+      handler: remote_json\n    config:\n      remote:
+      http://keto-api:4456/relation-tuples/check\n      payload: |\n       
+      {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n\n\n-
+      id: \"ory:sevenseer-remotefe-student-new-static\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-remotefe-student-new-obsidian-dev-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/\u003c{fe-student/assets/**}\u003e\"\n   
+      methods:\n      - GET\n      - OPTIONS\n  authenticators:\n    - handler:
+      noop\n  authorizer:\n    handler: allow\n  mutators:\n    - handler:
+      noop\n\n- id: \"ory:sevenseer-remotefe-student-new\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-remotefe-student-new-obsidian-dev-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/\u003c{fe-student/,fe-student,fe-student/dashboard,fe-student/jobs,fe-student/jobs/**,fe-student/internships,fe-student/internships/**,fe-student/resumes,fe-student/resumes/**,fe-student/skills,fe-student/skills/**,fe-student/analytics,fe-student/analytics/**,fe-student/mock-interview,fe-student/mock-interview/**,fe-student/unauthorized,fe-student/profile}\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n\n\n        \n- id:
+      \"ory:admin-api-user-management\"\n  upstream:\n    preserve_host:
+      true\n    url:
+      \"http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/admin/\u003c{v1,v2}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:scraping-requests-api-user-management\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/\u003c{scraping,github,feed-data,help-centre}\u003e/\u003c{v1,v2}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:superadmin-api-user-management\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/superadmin/\u003c{v1,v2}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n- id:
+      \"ory:interviewmodes-api-user-management\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/interview-modes/\u003c{v1,v2}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"sevenseers-vaporware-realtime\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://sevenseers-vaporware-realtime:3000\"\n 
+      match:\n    url: \"http://dev.7seers.ai/vapourware\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:mfe-presentation\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://sevenseer-remote-fe-presentation-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{ppt_mfe}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:mfe-presentation-new\"\n  upstream:\n    preserve_host: true\n   
+      url: \"http://sevenseer-presentation-mfe-obsidian-dev-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{new_ppt_mfe}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:mfe-admin\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://sevenseer-remotefe-admin-clusterip:80\"\n  match:\n    url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{admin_mfe}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:mfe-superadmin\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://sevenseer-superadmin-frontend-obsidian-dev-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{superadmin_mfe}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n       
+      \n- id: \"ory:doceditor-remotemfe\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://sevenseer-remotefe-doc-editor-clusterip:80\"\n 
+      match:\n    url: \"http://dev.7seers.ai/doc_editor\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login         
+      \n        \n- id: \"ory:mfe-student\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://sevenseer-remotefe-student-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{learner_mfe}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"sevenseers-vaporware-realtime:api\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseers-vaporware-realtime:3000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/api/session\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n            \n- id: \"ory:ppt-to-pdf\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://sevenseers-presentationexporter-clusterip:8001\"\n  match:\n   
+      url: \"http://dev.7seers.ai/ppt_export/v1\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:resume-exporter\"\n\n  upstream:\n\n    preserve_host: true\n\n   
+      url:
+      \"http://sevenseer-resumeexporter-clusterip.obsidian-dev.svc.cluster.local:8001\"\n\n 
+      match:\n\n    url:
+      \"http://dev.7seers.ai/export/v1/\u003c**\u003e\"\n\n    methods:\n\n     
+      - GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: noop\n  authorizer:\n    handler: allow\n 
+      mutators:\n    - handler: noop\n        \n- id: \"ory:media-service\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://sevenseer-media-service-clusterip:4766\"\n  match:\n    url:
+      \"http://dev.7seers.ai/media/v1/\u003c**\u003e\"\n    methods:\n      -
+      POST\n      - PUT\n      - DELETE\n      - PATCH\n  authenticators:\n    -
+      handler: cookie_session\n    - handler: bearer_token\n  authorizer:\n   
+      handler: remote_json\n    config:\n      remote:
+      http://keto-api:4456/relation-tuples/check\n      payload: |\n       
+      {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:dummymedia-service\"\n  upstream:\n    preserve_host:
+      true\n    url:
+      \"http://sevenseer-media-service-clusterip.obsidian-stage.svc.cluster.local:4766\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/dummymedia/v1/\u003c**\u003e\"\n    methods:\n     
+      - GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:media-service:public\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://sevenseer-media-service-clusterip:4766\"\n 
+      match:\n    url: \"http://dev.7seers.ai/media/v1/\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler: noop\n 
+      authorizer:\n    handler: allow\n  mutators:\n    - handler: noop\n 
+      errors:\n    - handler: redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n        \n- id: \"ory:get-cookie:public\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://web-ingestor-seven-seers.obsidian-dev.svc.cluster.local:4766\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/scrapehub/v1/\u003c{get_cookie}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n  authenticators:\n    - handler:
+      noop\n  authorizer:\n    handler: allow\n  mutators:\n    - handler:
+      noop\n  errors:\n    - handler: redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n        \n    \n- id: \"ory:rag-service\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://rag-seven-seers.obsidian-dev.svc.cluster.local:4766\"\n 
+      match:\n    url: \"http://dev.7seers.ai/rag/v1/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n        \n- id: \"ory:byte-sized-content\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-bytesizedcontent-clusterip:8000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/bsc/v1/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n        \n           \n- id: \"ory:vaporware-service\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-vaporware.obsidian-dev.svc.cluster.local:8000\"\n 
+      match:\n    url: \"http://dev.7seers.ai/vpr/v1/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n           \n- id: \"ory:doc-ingestor\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://doc-ingestor-seven-seers.obsidian-dev.svc.cluster.local:4766\"\n 
+      match:\n    url: \"http://dev.7seers.ai/doc/v1/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n        \n- id: \"ory:marker\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://marker-seven-seers:4766\"\n  match:\n    url:
+      \"http://dev.7seers.ai/marker/v1/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:marker-gpu\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://192.168.3.83:4766\"\n  match:\n    url:
+      \"http://dev.7seers.ai/marker_gpu/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n                   \n- id:
+      \"ory:web-ingestor-service\"\n  upstream:\n    preserve_host: true\n   
+      url:
+      \"http://web-ingestor-seven-seers.obsidian-dev.svc.cluster.local:4766\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/scrapehub/v1/\u003c{scrape_images,scrape_web,health_check,ping,request_scrape_jobs,docs,redoc,openapi.json}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n\n\n        \n\n        \n       
+      \n                    \n- id: \"ory:ai-tools-service\"\n  upstream:\n   
+      preserve_host: true\n    url: \"http://tools-seven-seers:4766\"\n 
+      match:\n    url: \"http://dev.7seers.ai/ai-tools/v1/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n        \n        \n- id: \"ory:genai-v2\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-presentation-v2-clusterip:4766\"\n  match:\n    url:
+      \"http://dev.7seers.ai/genai/v2/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:genai\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://sevenseer-presentation-clusterip:4766\"\n  match:\n    url:
+      \"http://dev.7seers.ai/genai/v1/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:frontend-1\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://frontend-seven-seers-obsidian-dev-clusterip:80\"\n  match:\n   
+      url: \"http://dev.7seers.ai\u003c{/}\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n        \n- id: \"ory:superadmin-mfe\"\n  upstream:\n    preserve_host:
+      true\n    url:
+      \"http://frontend-seven-seers-obsidian-dev-clusterip:80\"\n  match:\n   
+      url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{superadmin}\u003e\u003c{/}\u003e\u003c{dashboard,usage-analytics,organization-management,requests,courses-analytics,user-management,quick-actions,access-management,user-profile,metering,external-jobs,notifications,query-management,mock-interview-modes}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n- id:
+      \"ory:admin-mfe\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://frontend-seven-seers-obsidian-dev-clusterip:80\"\n  match:\n   
+      url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{admin}\u003e\u003c{/}\u003e\u003c{dashboard,teacher,student,subject,section}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n       
+      \n- id: \"ory:frontend-vaporware\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://sevenseer-vaporware-frontend-clusterip:80\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{vaporware}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n      \n\n- id: \"ory:kratos-admin-ui-node:public\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://frontend-seven-seers-obsidian-dev-clusterip:80\"\n  match:\n   
+      url:
+      \"http://dev.7seers.ai/\u003c{static,home,favicon.ico,assets}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler: noop\n 
+      authorizer:\n    handler: allow\n  mutators:\n    - handler: noop\n 
+      errors:\n    - handler: redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n        \n- id: \"ory:frontend\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://frontend-seven-seers-obsidian-dev-clusterip:80\"\n  match:\n   
+      url:
+      \"http://dev.7seers.ai\u003c{/}\u003e\u003c{gitex,tpo,course,student,wasm,create-new,create-quiz,quiz,iframe,graph,skeleton,composer,app,tinymce,create,my-quiz,media-library,tools,abctest,account,presentation,dashboard}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n\n- id:
+      \"ory:kratos:admin\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://kratos-admin:4434\"\n    strip_path: /.ory/kratos/private\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/.ory/kratos/private/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: noop\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: noop\n    \n    \n    \n- id:
+      \"ory:upolad-api:exposed\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://obsidian-library-server-clusterip:8000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/lib/v2/\u003c{upload}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler: noop\n 
+      authorizer:\n    handler: allow\n  mutators:\n    - handler: noop\n    \n-
+      id: \"library: analytics\"\n  upstream:\n    preserve_host: true\n    url:
+      \"http://obsidian-library-server-clusterip:8000\"\n   \n  match:\n    url:
+      \"http://dev.7seers.ai/lib/v1/analytics\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: noop\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: noop\n\n- id: \"loghandler\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://obsidian-log-handler-obsidian-dev-clusterip:8082\"\n  match:\n   
+      url: \"http://dev.7seers.ai/log/v1/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n      - PATCH\n 
+      authenticators:\n    - handler: noop\n  authorizer:\n    handler: allow\n 
+      mutators:\n    - handler: noop\n    \n\n        \n        \n      \n- id:
+      \"ory:kratos-admin-ui-node2:protected\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://obsidian-library-server-clusterip:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/lib/v1/\u003c{ppt,upload,quiz,tools,coupon}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n        \n        \n- id: \"ory:content-management\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://content-management-seven-seers:8000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/data/v1/\u003c{course,org,utils,health_check,openapi.json,redoc,docs,analytics,learning_path,master_learning_path,subject,section,student,group}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:content-management:media\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://content-management-seven-seers:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/data/v1/media/\u003c{download,upload,bucket,copy_objects,list,remove_objects}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:content-managemnt:public\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://content-management-seven-seers:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/data/v1/\u003c{url}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler: noop\n 
+      authorizer:\n    handler: allow\n  mutators:\n    - handler: noop\n 
+      errors:\n    - handler: redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n        \n- id:
+      \"ory:ppt-to-pdf:protected\"\n  upstream:\n    preserve_host: true\n   
+      url: \"http://presentationtopdf-obsidian-dev-clusterip:8080\"\n 
+      match:\n    url: \"http://dev.7seers.ai/pdf\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:3d-model:protected\"\n  upstream:\n    preserve_host:
+      true\n    url:
+      \"http://obsidian-threed-backend-service-obsidian-dev-clusterip:5000\"\n 
+      match:\n    url: \"http://dev.7seers.ai/modelapi/v1/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:kratos-auth-api:protected\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://obsidian-library-server-clusterip:8000\"\n 
+      match:\n    url: \"http://dev.7seers.ai/lib/v1/auth\u003c**\u003e\"\n   
+      methods:\n      - POST\n      - PUT\n      - DELETE\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"auth-api-protected\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n  \n \n-
+      id: \"ory:kratos-auth-api:public\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://obsidian-library-server-clusterip:8000\"\n 
+      match:\n    url: \"http://dev.7seers.ai/lib/v1/auth/\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler:
+      cookie_session\n    - handler: bearer_token\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n \n\n-
+      id: \"ory:kratos-media-api-admin-1:protected\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://obsidian-library-server-clusterip:8000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/lib/v1/media/\"\n    methods:\n      - POST\n 
+      authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"media-api-admin-protected\",\n          \"relation\":
+      \"access\",\n          \"subject_id\": \"{{print
+      .Extra.identity.traits.role }}\"\n        }\n  mutators:\n    - handler:
+      id_token\n  errors:\n    - handler: redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n\n- id:
+      \"ory:kratos-media-api-admin-2:protected\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://obsidian-library-server-clusterip:8000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/lib/v1/media/\u003c[0-9]*\u003e\"\n   
+      methods:\n      - DELETE\n      - PUT\n  authenticators:\n    - handler:
+      cookie_session\n    - handler: bearer_token\n  authorizer:\n    handler:
+      remote_json\n    config:\n      remote:
+      http://keto-api:4456/relation-tuples/check\n      payload: |\n       
+      {\n          \"namespace\": \"access\",\n          \"object\":
+      \"media-api-admin-protected\",\n          \"relation\":
+      \"access\",\n          \"subject_id\": \"{{print
+      .Extra.identity.traits.role }}\"\n        }\n  mutators:\n    - handler:
+      id_token\n  errors:\n    - handler: redirect\n      config:\n        to:
+      http://dev.7seers.ai/login\n\n        \n- id:
+      \"ory:kratos-media-api:public\"\n  upstream:\n    preserve_host: true\n   
+      url: \"http://obsidian-library-server-clusterip:8000\"\n  match:\n    url:
+      \"http://dev.7seers.ai/lib/v1/media/suggestion\"\n    methods:\n      -
+      POST\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: allow\n  mutators:\n    -
+      handler: id_token\n  errors:\n    - handler: redirect\n     
+      config:\n        to: http://dev.7seers.ai/login\n      \n- id:
+      \"ory:kratos-media-api-2:public\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://obsidian-library-server-clusterip:8000\"\n 
+      match:\n    url: \"http://dev.7seers.ai/lib/v1/media/\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler:
+      cookie_session\n    - handler: bearer_token\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n- id: \"ory:kratos-media-api-3:public\"\n  upstream:\n    preserve_host:
+      true\n    url: \"http://obsidian-library-server-clusterip:8000\"\n 
+      match:\n    url: \"http://dev.7seers.ai/lib/v1/media/fetch\"\n   
+      methods:\n      - POST\n  authenticators:\n    - handler:
+      cookie_session\n    - handler: bearer_token\n  authorizer:\n    handler:
+      allow\n  mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n       
+      \n\n- id: \"ory:kratos-admin-ui-node4:protected\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://obsidian-presentation-api-clusterip:4766\"\n  match:\n    url:
+      \"http://dev.7seers.ai/psapi/\u003c**\u003e\"\n    methods:\n      -
+      GET\n      - POST\n      - PUT\n      - DELETE\n  authenticators:\n    -
+      handler: cookie_session\n    - handler: bearer_token\n  authorizer:\n   
+      handler: remote_json\n    config:\n      remote:
+      http://keto-api:4456/relation-tuples/check\n      payload: |\n       
+      {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n\n\n\n-
+      id: \"ory:kratos-selfservice-ui-node:anonymous\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-ory-frontend-obsidian-dev-clusterip:80\"\n  match:\n   
+      url:
+      \"http://dev.7seers.ai/panel/\u003c{assets,**.js,**.css,**.png,**.svg,7seersfavicon.ico}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler: anonymous\n 
+      authorizer:\n    handler: allow\n  mutators:\n    - handler: noop\n    \n-
+      id: \"ory:kratos-selfservice-ui-node:anonymous-1\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-ory-frontend-obsidian-dev-clusterip:80\"\n  match:\n   
+      url:
+      \"http://dev.7seers.ai/\u003c{login,verification,recovery,registration,signup,complete-profile,settings,terms,privacy,verification,7seersfavicon.ico}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler: anonymous\n 
+      authorizer:\n    handler: allow\n  mutators:\n    - handler: noop\n    \n-
+      id: \"ory:notification:admin\"\n  upstream:\n    preserve_host: true\n   
+      url:
+      \"http://obsidian-notification-service-obsidian-dev-clusterip.obsidian-dev.svc.cluster.local:9500\"\n 
+      match:\n    url: \"http://dev.7seers.ai/notification/\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n      - PUT\n      - DELETE\n      -
+      PATCH\n  authenticators:\n    - handler: cookie_session\n    - handler:
+      bearer_token\n  authorizer:\n    handler: remote_json\n    config:\n     
+      remote: http://keto-api:4456/relation-tuples/check\n      payload:
+      |\n        {\n          \"namespace\": \"access\",\n          \"object\":
+      \"administration\",\n          \"relation\": \"access\",\n         
+      \"subject_id\": \"{{print .Extra.identity.traits.role }}\"\n        }\n 
+      mutators:\n    - handler: id_token\n  errors:\n    - handler:
+      redirect\n      config:\n        to: http://dev.7seers.ai/login\n    \n   
+      \n- id: \"ory:kratos-selfservice-ui-node:protected\"\n  upstream:\n   
+      preserve_host: true\n    url:
+      \"http://sevenseer-ory-frontend-obsidian-dev-clusterip:80\"\n   
+      strip_path: /panel\n  match:\n    url:
+      \"http://dev.7seers.ai/panel/\u003c{debug,settings}\u003e\"\n   
+      methods:\n      - GET\n  authenticators:\n    - handler: anonymous\n 
+      authorizer:\n    handler: allow\n  mutators:\n    - handler: noop\n 
+      errors:\n    - handler: json\n    \n    \n- id:
+      \"ory:kratos-selfservice-ui-node:protected-test\"\n  upstream:\n   
+      preserve_host: true\n    url: \"http://selfservice:4455\"\n    strip_path:
+      /panel/welcome\n  match:\n    url:
+      \"http://dev.7seers.ai/panel/\u003c{welcome}\u003e\"\n    methods:\n     
+      - GET\n  authenticators:\n    - handler: anonymous\n  authorizer:\n   
+      handler: allow\n  mutators:\n    - handler: noop\n  errors:\n    -
+      handler: json\n \n- id: \"ory:public-api-user-management\"\n 
+      upstream:\n    preserve_host: true\n    url:
+      \"http://user-management-seven-seers.obsidian-dev.svc.cluster.local:8000\"\n 
+      match:\n    url:
+      \"http://dev.7seers.ai/admin/public/\u003c{v1,v2}\u003e\u003c**\u003e\"\n   
+      methods:\n      - GET\n      - POST\n  authenticators:\n    - handler:
+      anonymous\n  authorizer:\n    handler: allow\n  mutators:\n    - handler:
+      noop\n  errors:\n    - handler:
+      json\n\n"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"oathkeeper-rules","namespace":"obsidian-dev"}}
+  creationTimestamp: '2026-02-27T12:25:10Z'
+  managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:data: {}
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:kubectl.kubernetes.io/last-applied-configuration: {}
+      manager: kubectl-client-side-apply
+      operation: Update
+      time: '2026-02-27T12:38:45Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:data:
+          f:access-rules.yaml: {}
+      manager: rancher
+      operation: Update
+      time: '2026-03-03T10:49:43Z'
+  name: oathkeeper-rules
+  namespace: obsidian-dev
+  resourceVersion: '101798399'
+  uid: ec81c6ec-176e-4fab-a4d4-386472260871
