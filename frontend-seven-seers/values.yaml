@@ -1,0 +1,28 @@
+#Name
+name: frontend-test
+#Replicas
+replicaCount: 1
+
+
+#ingress:
+# host: a-------------------------------9
+
+
+#Images
+image:
+  repository: labs47b/frontend-test
+  tag: a-------------------------------9
+  pullPolicy: IfNotPresent
+
+#ImageSecrets:
+imagePullSecrets:
+        - name: dockerregistryi
+
+#Resources
+Resources:
+  enabled: false
+  resources:
+    requests:
+      cpu: 512m
+    limits:
+      cpu: 512m
